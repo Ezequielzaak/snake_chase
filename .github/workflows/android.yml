@@ -30,7 +30,11 @@ jobs:
           rm cmdline-tools.zip
           export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
           yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses
-          sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+          sdkmanager --sdk_root=${ANDROID_SDK_ROOT} \
+            "platform-tools" \
+            "platforms;android-31" \
+            "build-tools;31.0.0" \
+            "build-tools;36.0.0"
 
       - name: Create Python venv & install Python deps
         run: |
