@@ -23,17 +23,15 @@ jobs:
           sudo apt update
           sudo apt install -y unzip wget zip
 
-          # SDK root
           export ANDROID_SDK_ROOT="$HOME/android-sdk"
-          mkdir -p "$ANDROID_SDK_ROOT"/{cmdline-tools/licenses,platform-tools}
+          mkdir -p "$ANDROID_SDK_ROOT"/{cmdline-tools/latest,platform-tools,licenses}
 
-          # Baixa command-line tools
+          # Baixa e descompacta as ferramentas de linha de comando direto em latest
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cli.zip
-          unzip cli.zip -d "$ANDROID_SDK_ROOT"/cmdline-tools
-          mv "$ANDROID_SDK_ROOT"/cmdline-tools/cmdline-tools/* "$ANDROID_SDK_ROOT"/cmdline-tools/latest/
+          unzip cli.zip -d "$ANDROID_SDK_ROOT"/cmdline-tools/latest
           rm cli.zip
 
-          # Cria arquivo de licenças (inclui hashes do sdk-tools e build-tools)
+          # Insere as licenças necessárias
           cat > "$ANDROID_SDK_ROOT"/licenses/android-sdk-license <<EOF
           8933bad161af4178b1185d1a37fbf41ea5269c55
           d56f5187479451eabf01fb78af6dfcb131a6481e
@@ -41,12 +39,15 @@ jobs:
           84831b9409646a918e30573bab4c9c91346d8abd
           EOF
 
-          # Ajusta PATH
+          # Atualiza o PATH para incluir sdkmanager e platform-tools
           export PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
 
-          # Instala pacotes necessários
-          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "platforms;android-31" \
-            "build-tools;31.0.0" "build-tools;36.0.0"
+          # Instala platform-tools, platforms e build-tools (31 e 36)
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-31" \
+            "build-tools;31.0.0" \
+            "build-tools;36.0.0"
 
       - name: Install Python & Buildozer
         run: |
