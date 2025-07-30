@@ -18,20 +18,24 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Android SDK & Build-Tools with all licenses
+      - name: Install Android SDK & Build-Tools with licenses
         run: |
           sudo apt update
           sudo apt install -y unzip wget zip
 
           export ANDROID_SDK_ROOT="$HOME/android-sdk"
-          mkdir -p "$ANDROID_SDK_ROOT"/{cmdline-tools/latest,platform-tools,licenses}
+          # Cria pastas
+          mkdir -p "$ANDROID_SDK_ROOT"/{cmdline-tools/cmdline-tools,platform-tools,licenses}
 
-          # Baixa e descompacta as ferramentas de linha de comando direto em latest
+          # Baixa e descompacta o command-line tools em cmdline-tools/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cli.zip
-          unzip cli.zip -d "$ANDROID_SDK_ROOT"/cmdline-tools/latest
+          unzip cli.zip -d "$ANDROID_SDK_ROOT"/cmdline-tools/cmdline-tools
           rm cli.zip
 
-          # Insere as licenças necessárias
+          # Renomeia para latest
+          mv "$ANDROID_SDK_ROOT"/cmdline-tools/cmdline-tools "$ANDROID_SDK_ROOT"/cmdline-tools/latest
+
+          # Insere licenças (inclui build-tools 36)
           cat > "$ANDROID_SDK_ROOT"/licenses/android-sdk-license <<EOF
           8933bad161af4178b1185d1a37fbf41ea5269c55
           d56f5187479451eabf01fb78af6dfcb131a6481e
@@ -39,10 +43,10 @@ jobs:
           84831b9409646a918e30573bab4c9c91346d8abd
           EOF
 
-          # Atualiza o PATH para incluir sdkmanager e platform-tools
+          # Exporta PATH para sdkmanager e platform-tools
           export PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
 
-          # Instala platform-tools, platforms e build-tools (31 e 36)
+          # Instala pacotes
           sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
             "platform-tools" \
             "platforms;android-31" \
