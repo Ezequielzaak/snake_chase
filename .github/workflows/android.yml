@@ -12,23 +12,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Java 11
+      - name: Set up Java 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 31
-          build-tools: 31.0.0,36.0.0
-
-      - name: Create Python venv & install Python deps
+      - name: Install Android SDK & Build-Tools
         run: |
           sudo apt update
-          sudo apt install -y python3-pip python3-venv build-essential \
-            unzip wget zip
+          sudo apt install -y unzip wget zip
+          export ANDROID_SDK_ROOT="$HOME/android-sdk"
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
+          mv "$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools/"* "$ANDROID_SDK_ROOT/cmdline-tools/latest/"
+          rm cmdline-tools.zip
+          export PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
+          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-31" \
+            "build-tools;31.0.0" \
+            "build-tools;36.0.0"
+
+      - name: Install Python & Buildozer
+        run: |
+          sudo apt install -y python3-pip python3-venv build-essential
           python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip setuptools wheel Cython buildozer kivy
