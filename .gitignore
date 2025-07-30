@@ -1,0 +1,11 @@
+
+__pycache__/
+*.py[cod]
+*.so
+venv/
+.buildozer/
+bin/
+*.apk
+*.log
+.DS_Store
+*.swp
