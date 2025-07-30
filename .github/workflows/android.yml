@@ -17,12 +17,20 @@ jobs:
           distribution: temurin
           java-version: '11'
 
-      - name: Install system dependencies
+      - name: Install system dependencies & Android SDK
         run: |
           sudo apt update
           sudo apt install -y python3-pip python3-venv build-essential \
-            libsdl2-dev libgles2-mesa-dev libgl1-mesa-dev \
-            libgstreamer1.0-dev gstreamer1.0-plugins-{base,good,bad,ugly}
+            unzip wget openjdk-11-jdk zip
+          export ANDROID_SDK_ROOT=${HOME}/android-sdk
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+          mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
+          rm cmdline-tools.zip
+          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
 
       - name: Create Python venv & install Python deps
         run: |
@@ -40,3 +48,4 @@ jobs:
         with:
           name: SnakeChase-APK
           path: bin/snakechase-1.0-debug.apk
+
